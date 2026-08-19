@@ -116,7 +116,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
       className="flex w-full max-w-md flex-col gap-6 rounded-[2rem] bg-cream-50 p-8 shadow-clay"
     >
       <div>
-        <h1 className="text-2xl font-bold text-ink">Events Dashboard</h1>
+        <h1 className="text-2xl font-bold text-ink">EventLens</h1>
         <p className="mt-1 text-sm text-ink-soft">
           Real, date-verified local events — searched live, no guessed dates.
         </p>

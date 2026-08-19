@@ -1,4 +1,4 @@
-# Events Dashboard
+# EventLens
 
 A standalone website that generates a categorized, date-verified local events dashboard on demand.
 A visitor picks a city and a time window; the backend fans out live web-search queries via the

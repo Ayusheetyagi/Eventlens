@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Events Dashboard",
+  title: "EventLens",
   description: "A date-verified local events dashboard, generated live from real web search.",
 };
 
