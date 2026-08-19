@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Events Dashboard
 
-## Getting Started
+A standalone website that generates a categorized, date-verified local events dashboard on demand.
+A visitor picks a city and a time window; the backend fans out live web-search queries via the
+[Gemini API](https://ai.google.dev/gemini-api/docs) with **Google Search grounding** — one call
+per tab (Professional, Social, Networking, Fitness, Family, Arts) — and returns real events grouped
+by subcategory. Events are only marked "Confirmed" when a source states an explicit date; anything
+recurring without a specific date, or anything outside the selected window, is excluded or flagged
+rather than guessed.
 
-First, run the development server:
+## How it works
+
+- `app/api/generate-dashboard/route.ts` validates the request and calls `lib/generate-dashboard.ts`.
+- `lib/generate-dashboard.ts` resolves the date window server-side (`lib/date-window.ts`) and fans
+  out 6 parallel Gemini calls (`lib/gemini.ts`, one per tab in `lib/tabs.ts`) via
+  `Promise.allSettled`, so one failed tab never breaks the whole dashboard.
+- `lib/gemini.ts` calls Gemini with the `googleSearch` grounding tool plus a strict
+  `responseJsonSchema` for structured output — Gemini 3-family models support combining grounding
+  with structured output in the same call. The non-negotiable rules (no guessed dates, exclude
+  past/out-of-window events, flag source disagreements) are encoded directly in the system prompt.
+- The frontend (`components/DashboardApp.tsx`) is a simple form → loading → results flow. Each run
+  is a fresh, stateless snapshot — nothing is persisted.
+
+## Local setup
 
 ```bash
+npm install
+cp .env.local.example .env.local
+# then edit .env.local and add your GEMINI_API_KEY
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Required | Notes |
+|---|---|---|
+| `GEMINI_API_KEY` | Yes | Get one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey). Server-only — never sent to the browser. |
+| `GEMINI_MODEL` | No | Defaults to `gemini-flash-latest`. |
 
-## Learn More
+## Deploying to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push this repo to GitHub.
+2. Import it into Vercel.
+3. In the Vercel project's **Settings → Environment Variables**, add `GEMINI_API_KEY` (and
+   `GEMINI_MODEL` if you want to override the default).
+4. Deploy. The API route sets `maxDuration = 60` to allow time for 6 parallel search-grounded
+   calls — check your Vercel plan's function duration limit if requests are timing out.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Cost notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Each dashboard generation makes 6 Gemini calls (one per tab), each grounded with Google Search.
+Google Search grounding on Gemini 3-family models includes **5,000 free grounded prompts per
+month** (shared across the Gemini 3 family on your account), then $14 per 1,000 search queries
+after that — one grounded call can trigger more than one underlying search query. At 6 calls per
+dashboard, the free monthly allotment covers roughly 800 full dashboard generations before any
+search cost kicks in. Gemini's own token pricing applies on top, but Flash-tier tokens are cheap.
