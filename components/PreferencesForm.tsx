@@ -39,6 +39,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
   const [professionalField, setProfessionalField] = useState("");
   const [cityError, setCityError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [professionalFieldError, setProfessionalFieldError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryState>(initialCategoryState);
   const [expandedTabs, setExpandedTabs] = useState<Partial<Record<TabId, boolean>>>({});
 
@@ -102,6 +103,14 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
       setCategoryError(null);
     }
 
+    const trimmedField = professionalField.trim();
+    if (showFieldInput && !trimmedField) {
+      setProfessionalFieldError("Tell us your field so Professional/Networking results are relevant.");
+      hasError = true;
+    } else {
+      setProfessionalFieldError(null);
+    }
+
     if (hasError) return;
 
     onSubmit({
@@ -109,7 +118,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
       windowPreset,
       ...(windowPreset === "custom" ? { customStart, customEnd } : {}),
       ...(extraContext.trim() ? { extraContext: extraContext.trim() } : {}),
-      ...(showFieldInput && professionalField.trim() ? { professionalField: professionalField.trim() } : {}),
+      ...(showFieldInput ? { professionalField: trimmedField } : {}),
       tabSelections,
     });
   }
@@ -266,6 +275,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
           <p className="text-xs text-ink-soft">
             Focuses Professional and Networking results on your field instead of generic business events.
           </p>
+          {professionalFieldError && <p className="text-sm text-blush-700">{professionalFieldError}</p>}
         </div>
       )}
 

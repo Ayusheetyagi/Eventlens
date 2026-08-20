@@ -41,6 +41,15 @@ const RequestSchema = z
         return tabDef && selection.subcategories.every((s) => tabDef.defaultSubcategories.includes(s));
       }),
     { message: "One or more selected subcategories are not recognized.", path: ["tabSelections"] },
+  )
+  .refine(
+    (data) =>
+      !data.tabSelections.some((s) => s.tabId === "professional" || s.tabId === "networking") ||
+      Boolean(data.professionalField),
+    {
+      message: "professionalField is required when Professional or Networking is selected.",
+      path: ["professionalField"],
+    },
   );
 
 export async function POST(req: Request) {
