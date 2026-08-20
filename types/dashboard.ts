@@ -59,4 +59,5 @@ export interface GenerateDashboardRequest {
   customEnd?: string;
   extraContext?: string;
   tabSelections: TabSelection[];
+  professionalField?: string;
 }

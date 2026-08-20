@@ -6,8 +6,11 @@ import type {
   DashboardResponse,
   GenerateDashboardRequest,
   SubcategoryGroup,
+  TabId,
   TabResult,
 } from "@/types/dashboard";
+
+const FIELD_SCOPED_TABS: TabId[] = ["professional", "networking"];
 
 function buildStatusNote(subcategories: SubcategoryGroup[]): string {
   const allEvents = subcategories.flatMap((s) => s.events);
@@ -53,6 +56,9 @@ export async function generateDashboard(request: GenerateDashboardRequest): Prom
         windowEnd,
         subcategories: selection.subcategories,
         extraContext: request.extraContext,
+        professionalField: FIELD_SCOPED_TABS.includes(selection.tabId)
+          ? request.professionalField
+          : undefined,
       });
     }),
   );

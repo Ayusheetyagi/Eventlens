@@ -28,6 +28,7 @@ const RequestSchema = z
       .optional(),
     extraContext: z.string().max(3000).optional(),
     tabSelections: z.array(TabSelectionSchema).min(1, "Select at least one type of event."),
+    professionalField: z.string().trim().max(100).optional(),
   })
   .refine((data) => data.windowPreset !== "custom" || (data.customStart && data.customEnd), {
     message: 'customStart and customEnd are required when windowPreset is "custom".',

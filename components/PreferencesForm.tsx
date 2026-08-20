@@ -36,6 +36,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
   const [customStart, setCustomStart] = useState(todayIso());
   const [customEnd, setCustomEnd] = useState(todayIso());
   const [extraContext, setExtraContext] = useState("");
+  const [professionalField, setProfessionalField] = useState("");
   const [cityError, setCityError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryState>(initialCategoryState);
@@ -74,6 +75,8 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
     setExpandedTabs((prev) => ({ ...prev, [tabId]: !prev[tabId] }));
   }
 
+  const showFieldInput = categories.professional.included || categories.networking.included;
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmedCity = city.trim();
@@ -106,6 +109,7 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
       windowPreset,
       ...(windowPreset === "custom" ? { customStart, customEnd } : {}),
       ...(extraContext.trim() ? { extraContext: extraContext.trim() } : {}),
+      ...(showFieldInput && professionalField.trim() ? { professionalField: professionalField.trim() } : {}),
       tabSelections,
     });
   }
@@ -245,6 +249,25 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
         </div>
         {categoryError && <p className="text-sm text-blush-700">{categoryError}</p>}
       </div>
+
+      {showFieldInput && (
+        <div className="flex flex-col gap-1">
+          <label htmlFor="professionalField" className="text-sm font-medium text-ink">
+            Your field / industry
+          </label>
+          <input
+            id="professionalField"
+            type="text"
+            value={professionalField}
+            onChange={(e) => setProfessionalField(e.target.value.slice(0, 100))}
+            placeholder="e.g. Tech, Finance, Healthcare, Oil & Gas"
+            className="rounded-2xl border border-cream-300 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          />
+          <p className="text-xs text-ink-soft">
+            Focuses Professional and Networking results on your field instead of generic business events.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="extraContext" className="text-sm font-medium text-ink">

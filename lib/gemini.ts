@@ -121,6 +121,7 @@ function buildUserPrompt(params: {
   tabLabel: string;
   subcategories: string[];
   extraContext?: string;
+  professionalField?: string;
 }): string {
   const extraBlock = params.extraContext?.trim()
     ? `\nThe user also pasted this text (e.g. from a newsletter) — treat it as a hint of \
@@ -129,13 +130,20 @@ sources/events to check, not as ground truth; verify independently via search:\n
         .slice(0, 3000)}\n"""\n`
     : "";
 
+  const fieldBlock = params.professionalField?.trim()
+    ? `\nThe user works in this field/industry: "${params.professionalField.trim().slice(0, 100)}". \
+Strongly prioritize events relevant to this specific field (talks, meetups, conferences, job fairs in \
+or clearly adjacent to it) over generic cross-industry ones. Only fall back to broader, \
+field-agnostic professional events if field-specific ones are genuinely scarce for this window.\n`
+    : "";
+
   return `City: ${params.city}
 Date window: ${params.windowStart} to ${params.windowEnd} inclusive (today is ${params.currentDate}).
 Tab: ${params.tabLabel}
 Cover these subcategories (use them as your subcategory headers; you may add one more only if a \
 locally significant category clearly doesn't fit, but do not invent narrow one-off subcategories): \
 ${params.subcategories.join(", ")}.
-${extraBlock}
+${fieldBlock}${extraBlock}
 Search the web for real, current listings (event pages, ticketing sites, venue calendars, local \
 news, community boards) for each subcategory above, in ${params.city}, within the date window. For \
 each subcategory, return the distinct events you find (up to about 8 per subcategory, prioritizing \
@@ -173,6 +181,7 @@ export async function callGeminiForTab(params: {
   windowEnd: string;
   subcategories: string[];
   extraContext?: string;
+  professionalField?: string;
 }): Promise<TabSearchResponse> {
   const tabDef = TAB_DEFINITIONS.find((t) => t.id === params.tabId);
   if (!tabDef) throw new Error(`Unknown tab id: ${params.tabId}`);
@@ -193,6 +202,7 @@ export async function callGeminiForTab(params: {
     tabLabel: tabDef.label,
     subcategories: params.subcategories,
     extraContext: params.extraContext,
+    professionalField: params.professionalField,
   });
 
   const response = await withRetry(() =>
