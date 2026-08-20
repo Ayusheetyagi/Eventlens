@@ -252,32 +252,35 @@ export function PreferencesForm({ onSubmit }: { onSubmit: (request: GenerateDash
                     ))}
                   </div>
                 )}
+
+                {tabDef.id === "professional" && showFieldInput && (
+                  <div className="flex flex-col gap-1 border-t border-cream-100 px-3 py-2.5">
+                    <label htmlFor="professionalField" className="text-xs font-medium text-ink">
+                      Your field / industry
+                    </label>
+                    <input
+                      id="professionalField"
+                      type="text"
+                      value={professionalField}
+                      onChange={(e) => setProfessionalField(e.target.value.slice(0, 100))}
+                      placeholder="e.g. Tech, Finance, Healthcare, Oil & Gas"
+                      className="rounded-xl border border-cream-300 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-soft/60 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    />
+                    <p className="text-xs text-ink-soft">
+                      Focuses Professional and Networking results on your field instead of generic
+                      business events.
+                    </p>
+                    {professionalFieldError && (
+                      <p className="text-sm text-blush-700">{professionalFieldError}</p>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
         {categoryError && <p className="text-sm text-blush-700">{categoryError}</p>}
       </div>
-
-      {showFieldInput && (
-        <div className="flex flex-col gap-1">
-          <label htmlFor="professionalField" className="text-sm font-medium text-ink">
-            Your field / industry
-          </label>
-          <input
-            id="professionalField"
-            type="text"
-            value={professionalField}
-            onChange={(e) => setProfessionalField(e.target.value.slice(0, 100))}
-            placeholder="e.g. Tech, Finance, Healthcare, Oil & Gas"
-            className="rounded-2xl border border-cream-300 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-300"
-          />
-          <p className="text-xs text-ink-soft">
-            Focuses Professional and Networking results on your field instead of generic business events.
-          </p>
-          {professionalFieldError && <p className="text-sm text-blush-700">{professionalFieldError}</p>}
-        </div>
-      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="extraContext" className="text-sm font-medium text-ink">
